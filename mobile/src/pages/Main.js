@@ -5,7 +5,8 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  Keyboard
 } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 import {
@@ -17,9 +18,12 @@ import { MaterialIcons } from "@expo/vector-icons";
 import api from "../services/api";
 import { connect, disconnect, subscribeToNewDevs } from "../services/socket";
 
+import SearchForm from "../components/SearchForm";
+
 function Main({ navigation }) {
   const [devs, setDevs] = useState([]);
   const [currentRegion, setCurrentRegion] = useState(null);
+  const [isShow, setIsShow] = useState(false);
   const [techs, setTechs] = useState("");
 
   useEffect(() => {
@@ -42,6 +46,20 @@ function Main({ navigation }) {
       }
     }
     loadInitialPosition();
+
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      _keyboardDidShow
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      _keyboardDidHide
+    );
+
+    return function cleanup() {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
   }, []);
 
   useEffect(() => {
@@ -74,6 +92,27 @@ function Main({ navigation }) {
   function handleRegionChange(region) {
     setCurrentRegion(region);
   }
+
+  function _keyboardDidShow(e) {
+    keyboardHeight = Math.floor(e.endCoordinates.height);
+    setIsShow(true);
+  }
+
+  function _keyboardDidHide() {
+    keyboardHeight = 20;
+    setIsShow(false);
+  }
+
+  const searchForm = () => {
+    return {
+      position: "absolute",
+      bottom: isShow ? 340 : 20,
+      left: 20,
+      right: 20,
+      zIndex: 5,
+      flexDirection: "row"
+    };
+  };
 
   if (!currentRegion) {
     return null;
@@ -116,7 +155,7 @@ function Main({ navigation }) {
           </Marker>
         ))}
       </MapView>
-      <View style={styles.searchForm}>
+      <View style={searchForm()}>
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar devs por techs..."
@@ -159,14 +198,7 @@ const styles = StyleSheet.create({
   devTechs: {
     marginTop: 5
   },
-  searchForm: {
-    position: "absolute",
-    top: 20,
-    left: 20,
-    right: 20,
-    zIndex: 5,
-    flexDirection: "row"
-  },
+
   searchInput: {
     flex: 1,
     height: 50,
