@@ -9,6 +9,10 @@ main ul {
   list-style: none;
 }
 
+i {
+  color: red;
+}
+
 @media (max-width: 650px) {
   main ul {
     grid-template-columns: 1fr;
@@ -24,8 +28,7 @@ li.dev-item {
 
 li.dev-item header {
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  justify-content: space-between;
 }
 
 li.dev-item header img {
@@ -36,6 +39,22 @@ li.dev-item header img {
 
 li.dev-item header .user-info {
   margin-left: 10px;
+}
+
+.delete-button {
+  border: 0;
+  background-color: rgba(0, 0, 0, 0);
+  align-self: flex-start;
+}
+
+.delete-button:hover {
+  cursor: pointer;
+}
+
+.dev-infos {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .user-info strong {
